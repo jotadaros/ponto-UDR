@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UDR — Registro de Ponto</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
+  .app{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);width:100%;max-width:540px;overflow:hidden}
+  .header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start}
+  .header h1{font-size:18px;font-weight:600;color:#111;margin-bottom:2px}
+  .header p{font-size:13px;color:#888}
+  .sync-badge{font-size:12px;padding:4px 10px;border:1px solid #e5e5e5;border-radius:8px;color:#666;white-space:nowrap}
+  .sync-ok{color:#16a34a;border-color:#bbf7d0}
+  .sync-err{color:#dc2626;border-color:#fecaca}
+  nav{display:flex;border-bottom:1px solid #eee;margin:16px 0 0}
+  nav button{flex:1;padding:10px 8px;border:none;background:none;font-size:14px;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+  nav button.active{color:#111;font-weight:600;border-bottom-color:#111}
+  .body{padding:20px 24px 28px}
+  .relogio{font-size:13px;color:#888;margin-bottom:18px}
+  .warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:13px;color:#92400e;margin-bottom:16px}
+  .card{background:#fff;border:1px solid #eee;border-radius:12px;padding:20px;margin-bottom:12px}
+  label.lbl{display:block;font-size:13px;color:#888;margin-bottom:6px}
+  select,input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:15px;color:#111;background:#fff;outline:none;transition:.15s;margin-bottom:14px}
+  select:focus,input:focus{border-color:#aaa}
+  .acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .acao-btn{padding:12px 8px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;font-size:13px;color:#111;cursor:pointer;text-align:center;transition:.15s}
+  .acao-btn.sel{border-color:#111;border-width:2px;background:#f9f9f9;font-weight:600}
+  .acao-btn:hover{background:#f5f5f5}
+  .btn{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;transition:.15s}
+  .btn:hover:not(:disabled){background:#f5f5f5}
+  .btn:disabled{color:#bbb;cursor:not-allowed}
+  .btn-sm{padding:8px 16px;border:1px solid #e5e5e5;border-radius:8px;background:#fff;font-size:13px;color:#666;cursor:pointer;margin-right:8px;margin-bottom:8px}
+  .btn-sm:hover{background:#f5f5f5}
+  .alert{border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px}
+  .alert.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+  .alert.danger{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;margin-bottom:12px}
+  .alert.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:8px 10px;border-bottom:1px solid #eee;color:#888;font-weight:500}
+  td{padding:8px 10px;border-bottom:1px solid #f5f5f5;color:#111}
+  .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
+  .badge.entrada{background:#f0fdf4;color:#16a34a}
+  .badge.inicio_intervalo{background:#fffbeb;color:#d97706}
+  .badge.fim_intervalo{background:#eff6ff;color:#2563eb}
+  .badge.saida{background:#fef2f2;color:#dc2626}
+  .func-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5}
+  .func-row span{font-size:14px;color:#111}
+  .func-row button{background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px}
+  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+  .dot-ok{background:#16a34a}
+  .dot-err{background:#dc2626}
+  code{font-size:12px;background:#f5f5f5;padding:2px 6px;border-radius:4px;font-family:monospace}
+  .login-wrap{max-width:340px;margin:0 auto}
+  h3{font-size:16px;font-weight:600;color:#111;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>UDR — Registro de ponto</h1>
+      <p>Clínica de hemodiálise</p>
+    </div>
+    <div id="sync-badge" style="display:none" class="sync-badge"></div>
+  </div>
+
+  <nav>
+    <button class="active" onclick="trocarAba('ponto',this)">Registrar ponto</button>
+    <button onclick="trocarAba('relatorio',this)">Relatório</button>
+    <button onclick="trocarAba('configuracoes',this)">Configurações</button>
+  </nav>
+
+  <div class="body">
+    <!-- ABA PONTO -->
+    <div id="aba-ponto">
+      <div class="relogio" id="relogio"></div>
+      <div id="aviso-script" class="warn" style="display:none">
+        ⚠️ Nenhum Apps Script configurado. Acesse <strong>Configurações</strong> para conectar o Google Sheets.
+      </div>
+      <div class="card">
+        <label class="lbl">Selecione seu nome</label>
+        <select id="select-nome">
+          <option value="">— escolha um funcionário —</option>
+        </select>
+        <div id="aviso-sem-func" style="display:none;font-size:13px;color:#888;margin-bottom:14px">
+          Nenhum funcionário cadastrado. Acesse <strong>Configurações</strong> para adicionar.
+        </div>
+        <label class="lbl">Tipo de registro</label>
+        <div class="acoes">
+          <button class="acao-btn" onclick="selecionarAcao('entrada',this)">🟢 Entrada</button>
+          <button class="acao-btn" onclick="selecionarAcao('inicio_intervalo',this)">🟡 Início de intervalo</button>
+          <button class="acao-btn" onclick="selecionarAcao('fim_intervalo',this)">🔵 Fim de intervalo</button>
+          <button class="acao-btn" onclick="selecionarAcao('saida',this)">🔴 Saída</button>
+        </div>
+        <button class="btn" id="btn-confirmar" onclick="confirmar()" disabled>Confirmar registro</button>
+        <div id="msg-confirmado" style="display:none" class="alert success"></div>
+      </div>
+    </div>
+
+    <!-- ABA RELATORIO -->
+    <div id="aba-relatorio" style="display:none">
+      <div id="login-relatorio" class="login-wrap">
+        <div class="card">
+          <h3>Acesso restrito</h3>
+          <label class="lbl">Senha administrativa</label>
+          <input type="password" id="senha-relatorio" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')entrarRelatorio()"/>
+          <div id="erro-relatorio" class="alert danger" style="display:none">Senha incorreta.</div>
+          <button class="btn" onclick="entrarRelatorio()">Entrar</button>
+        </div>
+      </div>
+      <div id="conteudo-relatorio" style="display:none">
+        <div style="margin-bottom:12px">
+          <button class="btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
+          <button class="btn-sm" onclick="sairRelatorio()">Sair</button>
+        </div>
+        <div class="card">
+          <p id="status-relatorio" style="font-size:13px;color:#888;margin-bottom:14px"></p>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Funcionário</th><th>Tipo</th><th>Data</th><th>Hora</th></tr></thead>
+              <tbody id="tbody-registros"></tbody>
+            </table>
+          </div>
+          <p id="sem-registros" style="color:#bbb;font-size:14px;display:none">Nenhum registro ainda.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA CONFIGURACOES -->
+    <div id="aba-configuracoes" style="display:none">
+      <div id="login-config" class="login-wrap">
+        <div class="card">
+          <h3>Acesso restrito</h3>
+          <label class="lbl">Senha administrativa</label>
+          <input type="password" id="senha-config" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')entrarConfig()"/>
+          <div id="erro-config" class="alert danger" style="display:none">Senha incorreta.</div>
+          <button class="btn" onclick="entrarConfig()">Entrar</button>
+        </div>
+      </div>
+      <div id="conteudo-config" style="display:none">
+        <div style="text-align:right;margin-bottom:12px">
+          <button class="btn-sm" onclick="sairConfig()">Sair</button>
+        </div>
+        <div class="card">
+          <h3>Funcionários cadastrados</h3>
+          <div id="lista-funcionarios"></div>
+          <div style="margin-top:18px">
+            <label class="lbl">Adicionar novo funcionário</label>
+            <input type="text" id="input-novo-func" placeholder="Nome completo..." onkeydown="if(event.key==='Enter')adicionarFuncionario()"/>
+            <button class="btn" onclick="adicionarFuncionario()">Adicionar</button>
+            <div id="msg-func" style="display:none" class="alert success"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Google Sheets — Apps Script</h3>
+          <p style="font-size:13px;color:#888;margin-bottom:8px">
+            Cole a URL gerada ao publicar o Apps Script. Ela termina em <code>/exec</code>
+          </p>
+          <p style="font-size:13px;margin-bottom:14px" id="status-script"></p>
+          <label class="lbl">URL do Apps Script</label>
+          <input type="text" id="input-script" placeholder="https://script.google.com/macros/s/.../exec"/>
+          <button class="btn" onclick="salvarScript()">Salvar URL</button>
+          <div id="msg-script" style="display:none" class="alert success"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SENHA = "acessoadm";
+const ACOES_LABEL = {entrada:"Entrada",inicio_intervalo:"Início de intervalo",fim_intervalo:"Fim de intervalo",saida:"Saída"};
+let acaoSel = "";
+let sincronizando = false;
+
+function getData() { return JSON.parse(localStorage.getItem("udr_registros")||"[]"); }
+function getFuncs() { return JSON.parse(localStorage.getItem("udr_funcionarios")||"[]"); }
+function getScript() { return localStorage.getItem("udr_script_url")||""; }
+function setData(d) { localStorage.setItem("udr_registros",JSON.stringify(d)); }
+function setFuncs(f) { localStorage.setItem("udr_funcionarios",JSON.stringify(f)); }
+
+function pad(n){return String(n).padStart(2,"0")}
+function formatData(d){return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`}
+function formatHora(d){return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+
+setInterval(()=>{
+  const now=new Date();
+  document.getElementById("relogio").textContent=`📅 ${formatData(now)}   🕐 ${formatHora(now)}`;
+},1000);
+
+function trocarAba(aba,btn){
+  ["ponto","relatorio","configuracoes"].forEach(a=>{
+    document.getElementById("aba-"+a).style.display = a===aba?"block":"none";
+  });
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  if(aba==="relatorio") renderRelatorio();
+  if(aba==="configuracoes") renderConfigStatus();
+}
+
+function atualizarSelectNomes(){
+  const sel=document.getElementById("select-nome");
+  const funcs=getFuncs();
+  sel.innerHTML='<option value="">— escolha um funcionário —</option>';
+  funcs.forEach(f=>{ const o=document.createElement("option"); o.value=o.textContent=f; sel.appendChild(o); });
+  document.getElementById("aviso-sem-func").style.display=funcs.length===0?"block":"none";
+}
+
+function selecionarAcao(id,btn){
+  acaoSel=id;
+  document.querySelectorAll(".acao-btn").forEach(b=>b.classList.remove("sel"));
+  btn.classList.add("sel");
+  verificarBotao();
+}
+
+document.getElementById("select-nome").addEventListener("change", verificarBotao);
+
+function verificarBotao(){
+  const nome=document.getElementById("select-nome").value;
+  document.getElementById("btn-confirmar").disabled = !nome||!acaoSel||sincronizando;
+}
+
+function showSync(msg,cls){
+  const el=document.getElementById("sync-badge");
+  el.textContent=msg; el.className="sync-badge "+(cls||"");
+  el.style.display="inline-block";
+}
+function hideSync(){ document.getElementById("sync-badge").style.display="none"; }
+
+async function confirmar(){
+  const nome=document.getElementById("select-nome").value;
+  if(!nome||!acaoSel||sincronizando) return;
+  const now=new Date();
+  const reg={id:Date.now(),nome,acao:acaoSel,timestamp:now.toISOString(),data:formatData(now),hora:formatHora(now)};
+  const lista=[reg,...getData()];
+  setData(lista);
+
+  const div=document.getElementById("msg-confirmado");
+  div.textContent=`✅ ${nome} — ${ACOES_LABEL[acaoSel]} às ${reg.hora}`;
+  div.style.display="block";
+  setTimeout(()=>div.style.display="none",5000);
+
+  document.getElementById("select-nome").value="";
+  acaoSel="";
+  document.querySelectorAll(".acao-btn").forEach(b=>b.classList.remove("sel"));
+  verificarBotao();
+
+  const url=getScript();
+  if(url){
+    sincronizando=true;
+    showSync("⏳ Enviando...","");
+    document.getElementById("btn-confirmar").disabled=true;
+    try{
+      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"text/plain"},
+        body:JSON.stringify({nome:reg.nome,acao:ACOES_LABEL[reg.acao],data:reg.data,hora:reg.hora,timestamp:reg.timestamp})});
+      const j=await r.json();
+      showSync(j.status==="ok"?"✅ Enviado ao Sheets":"⚠️ Erro no envio", j.status==="ok"?"sync-ok":"sync-err");
+    }catch(e){ showSync("❌ Falha na sincronização","sync-err"); }
+    sincronizando=false;
+    verificarBotao();
+    setTimeout(hideSync,4000);
+  }
+}
+
+function renderRelatorio(){
+  const regs=getData(); const url=getScript();
+  document.getElementById("status-relatorio").innerHTML=
+    `${regs.length} registro(s) · Sheets ${url?'<span style="color:#16a34a">✅ conectado</span>':'<span style="color:#dc2626">❌ não configurado</span>'}`;
+  const tbody=document.getElementById("tbody-registros");
+  tbody.innerHTML="";
+  document.getElementById("sem-registros").style.display=regs.length===0?"block":"none";
+  regs.forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.nome}</td><td><span class="badge ${r.acao}">${ACOES_LABEL[r.acao]||r.acao}</span></td><td>${r.data}</td><td>${r.hora}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function entrarRelatorio(){
+  if(document.getElementById("senha-relatorio").value===SENHA){
+    document.getElementById("login-relatorio").style.display="none";
+    document.getElementById("conteudo-relatorio").style.display="block";
+    document.getElementById("erro-relatorio").style.display="none";
+    renderRelatorio();
+  } else { document.getElementById("erro-relatorio").style.display="block"; }
+}
+function sairRelatorio(){
+  document.getElementById("login-relatorio").style.display="block";
+  document.getElementById("conteudo-relatorio").style.display="none";
+  document.getElementById("senha-relatorio").value="";
+  document.getElementById("erro-relatorio").style.display="none";
+}
+
+function exportarCSV(){
+  const regs=getData();
+  let csv="Funcionário,Tipo de Registro,Data,Hora,Timestamp\n";
+  csv+=regs.map(r=>`"${r.nome}","${ACOES_LABEL[r.acao]||r.acao}","${r.data}","${r.hora}","${r.timestamp}"`).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+  a.download="ponto_udr.csv"; a.click();
+}
+
+function renderConfigStatus(){
+  const url=getScript();
+  document.getElementById("status-script").innerHTML=
+    `Status: ${url?'<strong style="color:#16a34a">✅ configurado</strong>':'<strong style="color:#dc2626">❌ não configurado</strong>'}`;
+  document.getElementById("input-script").value=url;
+  renderListaFuncs();
+}
+
+function renderListaFuncs(){
+  const funcs=getFuncs();
+  const div=document.getElementById("lista-funcionarios");
+  if(funcs.length===0){ div.innerHTML='<p style="font-size:13px;color:#bbb">Nenhum funcionário cadastrado ainda.</p>'; return; }
+  div.innerHTML=funcs.map(f=>`
+    <div class="func-row">
+      <span>${f}</span>
+      <button onclick="removerFuncionario('${f.replace(/'/g,"\\'")}')">Remover</button>
+    </div>`).join("");
+}
+
+function adicionarFuncionario(){
+  const input=document.getElementById("input-novo-func");
+  const n=input.value.trim();
+  const funcs=getFuncs();
+  const msg=document.getElementById("msg-func");
+  if(!n||funcs.includes(n)){ msg.textContent="Nome inválido ou já existe."; msg.className="alert danger"; msg.style.display="block"; setTimeout(()=>msg.style.display="none",3000); return; }
+  const nova=[...funcs,n].sort();
+  setFuncs(nova);
+  input.value="";
+  msg.textContent=`"${n}" adicionado com sucesso.`; msg.className="alert success"; msg.style.display="block";
+  setTimeout(()=>msg.style.display="none",3000);
+  renderListaFuncs();
+  atualizarSelectNomes();
+}
+
+function removerFuncionario(nome){
+  setFuncs(getFuncs().filter(f=>f!==nome));
+  renderListaFuncs();
+  atualizarSelectNomes();
+}
+
+function salvarScript(){
+  const url=document.getElementById("input-script").value.trim();
+  localStorage.setItem("udr_script_url",url);
+  const msg=document.getElementById("msg-script");
+  msg.textContent="URL salva com sucesso!"; msg.style.display="block";
+  setTimeout(()=>msg.style.display="none",3000);
+  renderConfigStatus();
+  document.getElementById("aviso-script").style.display=url?"none":"block";
+}
+
+function entrarConfig(){
+  if(document.getElementById("senha-config").value===SENHA){
+    document.getElementById("login-config").style.display="none";
+    document.getElementById("conteudo-config").style.display="block";
+    document.getElementById("erro-config").style.display="none";
+    renderConfigStatus();
+  } else { document.getElementById("erro-config").style.display="block"; }
+}
+function sairConfig(){
+  document.getElementById("login-config").style.display="block";
+  document.getElementById("conteudo-config").style.display="none";
+  document.getElementById("senha-config").value="";
+  document.getElementById("erro-config").style.display="none";
+}
+
+// init
+atualizarSelectNomes();
+document.getElementById("aviso-script").style.display=getScript()?"none":"block";
+const now=new Date();
+document.getElementById("relogio").textContent=`📅 ${formatData(now)}   🕐 ${formatHora(now)}`;
+</script>
+</body>
+</html>
