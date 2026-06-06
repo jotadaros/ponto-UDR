@@ -3,375 +3,346 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>UDR — Registro de Ponto</title>
+<title>Registro de Plantões — Clínica de Hemodiálise</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
-  .app{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);width:100%;max-width:540px;overflow:hidden}
-  .header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start}
-  .header h1{font-size:18px;font-weight:600;color:#111;margin-bottom:2px}
-  .header p{font-size:13px;color:#888}
-  .sync-badge{font-size:12px;padding:4px 10px;border:1px solid #e5e5e5;border-radius:8px;color:#666;white-space:nowrap}
-  .sync-ok{color:#16a34a;border-color:#bbf7d0}
-  .sync-err{color:#dc2626;border-color:#fecaca}
-  nav{display:flex;border-bottom:1px solid #eee;margin:16px 0 0}
-  nav button{flex:1;padding:10px 8px;border:none;background:none;font-size:14px;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
-  nav button.active{color:#111;font-weight:600;border-bottom-color:#111}
-  .body{padding:20px 24px 28px}
-  .relogio{font-size:13px;color:#888;margin-bottom:18px}
-  .warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:13px;color:#92400e;margin-bottom:16px}
-  .card{background:#fff;border:1px solid #eee;border-radius:12px;padding:20px;margin-bottom:12px}
-  label.lbl{display:block;font-size:13px;color:#888;margin-bottom:6px}
-  select,input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:15px;color:#111;background:#fff;outline:none;transition:.15s;margin-bottom:14px}
-  select:focus,input:focus{border-color:#aaa}
-  .acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-  .acao-btn{padding:12px 8px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;font-size:13px;color:#111;cursor:pointer;text-align:center;transition:.15s}
-  .acao-btn.sel{border-color:#111;border-width:2px;background:#f9f9f9;font-weight:600}
-  .acao-btn:hover{background:#f5f5f5}
-  .btn{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;transition:.15s}
-  .btn:hover:not(:disabled){background:#f5f5f5}
-  .btn:disabled{color:#bbb;cursor:not-allowed}
-  .btn-sm{padding:8px 16px;border:1px solid #e5e5e5;border-radius:8px;background:#fff;font-size:13px;color:#666;cursor:pointer;margin-right:8px;margin-bottom:8px}
-  .btn-sm:hover{background:#f5f5f5}
-  .alert{border-radius:10px;padding:12px 16px;font-size:14px;margin-top:12px}
-  .alert.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
-  .alert.danger{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;margin-bottom:12px}
-  .alert.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;margin-bottom:12px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:8px 10px;border-bottom:1px solid #eee;color:#888;font-weight:500}
-  td{padding:8px 10px;border-bottom:1px solid #f5f5f5;color:#111}
-  .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
-  .badge.entrada{background:#f0fdf4;color:#16a34a}
-  .badge.inicio_intervalo{background:#fffbeb;color:#d97706}
-  .badge.fim_intervalo{background:#eff6ff;color:#2563eb}
-  .badge.saida{background:#fef2f2;color:#dc2626}
-  .func-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5}
-  .func-row span{font-size:14px;color:#111}
-  .func-row button{background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px}
-  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-  .dot-ok{background:#16a34a}
-  .dot-err{background:#dc2626}
-  code{font-size:12px;background:#f5f5f5;padding:2px 6px;border-radius:4px;font-family:monospace}
-  .login-wrap{max-width:340px;margin:0 auto}
-  h3{font-size:16px;font-weight:600;color:#111;margin-bottom:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh}
+.app{max-width:720px;margin:0 auto;padding:2rem 1rem}
+h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.subtitle{font-size:13px;color:#888;margin-bottom:1.5rem}
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:8px 18px;border:1px solid #ddd;border-radius:8px;background:transparent;cursor:pointer;font-size:14px;color:#666;transition:all 0.15s}
+.tab.active{background:#ebebeb;color:#111;border-color:#bbb;font-weight:500}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.section-title{font-size:16px;font-weight:500;margin-bottom:1rem;color:#111}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.field select,.field input[type=text],.field input[type=date],.field input[type=password]{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111;outline:none}
+.field select:focus,.field input:focus{border-color:#378ADD}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+.turnos-group{display:flex;gap:8px}
+.turno-btn{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;color:#666;transition:all 0.15s;text-align:center}
+.turno-btn.selected{background:#E6F1FB;border-color:#378ADD;color:#0C447C;font-weight:500}
+.proc-group{display:flex;gap:8px;flex-wrap:wrap}
+.proc-btn{padding:8px 16px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#666;transition:all 0.15s}
+.proc-btn.selected{background:#EAF3DE;border-color:#639922;color:#27500A;font-weight:500}
+.tipo-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:8px;margin-top:6px;font-weight:500}
+.tipo-semana{background:#E6F1FB;color:#0C447C}
+.tipo-fds{background:#FAEEDA;color:#633806}
+.tipo-feriado{background:#FCEBEB;color:#791F1F}
+.btn-primary{width:100%;padding:12px;background:#378ADD;border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:500;cursor:pointer;margin-top:0.5rem}
+.btn-primary:hover{background:#185FA5}
+.btn-primary:disabled{background:#ddd;color:#999;cursor:not-allowed}
+.toast{display:none;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:1rem;align-items:center;gap:8px}
+.toast.show{display:flex}
+.toast.ok{background:#EAF3DE;border:1px solid #639922;color:#27500A}
+.toast.erro{background:#FCEBEB;border:1px solid #A32D2D;color:#791F1F}
+.mes-select{padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111}
+.resumo-table{width:100%;border-collapse:collapse;font-size:13px}
+.resumo-table th{text-align:left;padding:8px 10px;border-bottom:1px solid #eee;color:#888;font-weight:500;font-size:12px}
+.resumo-table td{padding:8px 10px;border-bottom:1px solid #f0f0f0;color:#111}
+.resumo-table tbody tr:last-child td{border-bottom:none}
+.valor{color:#0C447C;font-weight:500}
+.empty-state{text-align:center;padding:2rem;color:#aaa;font-size:14px}
+.log-list{max-height:300px;overflow-y:auto}
+.log-item{padding:9px 10px;border-bottom:1px solid #f0f0f0;font-size:13px}
+.log-item:last-child{border-bottom:none}
+.log-meta{color:#999;font-size:12px;margin-top:2px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.lock-screen{text-align:center;padding:2.5rem 1rem}
+.lock-screen .ti{font-size:36px;color:#ccc}
+.lock-screen p{font-size:14px;color:#888;margin:0.75rem 0 1.25rem;line-height:1.6}
+.lock-input{width:100%;max-width:260px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111;text-align:center;letter-spacing:2px;outline:none}
+.lock-input:focus{border-color:#378ADD}
+.lock-input.shake{animation:shake 0.3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.btn-entrar{margin-top:10px;padding:9px 28px;background:#378ADD;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.btn-entrar:hover{background:#185FA5}
+.erro-senha{font-size:12px;color:#A32D2D;margin-top:8px;min-height:16px}
+.adm-badge{font-size:11px;padding:3px 9px;background:#EAF3DE;color:#27500A;border-radius:6px;font-weight:500}
+.btn-sair{font-size:12px;color:#aaa;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline}
+.btn-sair:hover{color:#666}
+.info-box{background:#f7f7f5;border:1px solid #e5e5e5;border-radius:8px;padding:12px;font-size:13px;color:#666;margin-top:1rem}
+.mono{font-family:monospace;font-size:12px;background:#f0f0ee;padding:8px 10px;border-radius:6px;word-break:break-all;margin-top:6px}
+.medico-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f0f0f0;font-size:14px}
+.medico-item:last-child{border-bottom:none}
+.btn-remover{background:none;border:none;cursor:pointer;color:#A32D2D;font-size:13px;padding:3px 8px;border-radius:6px;transition:background 0.15s}
+.btn-remover:hover{background:#FCEBEB}
+.add-medico-row{display:flex;gap:8px;margin-top:12px}
+.add-medico-row input{flex:1;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111;outline:none}
+.add-medico-row input:focus{border-color:#378ADD}
+.btn-adicionar{padding:9px 18px;background:#378ADD;border:none;border-radius:8px;color:#fff;font-size:14px;cursor:pointer;white-space:nowrap;font-weight:500}
+.btn-adicionar:hover{background:#185FA5}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div>
-      <h1>UDR — Registro de ponto</h1>
-      <p>Clínica de hemodiálise</p>
-    </div>
-    <div id="sync-badge" style="display:none" class="sync-badge"></div>
+  <h1>Registro de Plantões</h1>
+  <p class="subtitle">Clínica de Hemodiálise</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('registro',event)"><i class="ti ti-calendar-plus"></i> Registrar plantão</button>
+    <button class="tab" onclick="showTab('admin',event)"><i class="ti ti-chart-bar"></i> Resumo mensal</button>
+    <button class="tab" onclick="showTab('config',event)"><i class="ti ti-settings"></i> Configurações</button>
   </div>
 
-  <nav>
-    <button class="active" onclick="trocarAba('ponto',this)">Registrar ponto</button>
-    <button onclick="trocarAba('relatorio',this)">Relatório</button>
-    <button onclick="trocarAba('configuracoes',this)">Configurações</button>
-  </nav>
+  <!-- REGISTRO -->
+  <div id="tab-registro" class="tab-content active">
+    <div id="toast" class="toast ok"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+    <div class="card">
+      <p class="section-title">Dados do plantão</p>
+      <div class="row">
+        <div class="field">
+          <label>Médico</label>
+          <select id="medico">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Data do plantão</label>
+          <input type="date" id="data-plantao"/>
+        </div>
+      </div>
+      <div id="tipo-dia-container" style="margin-bottom:1rem;display:none">
+        <span id="tipo-dia-badge" class="tipo-badge"></span>
+      </div>
+      <div class="field">
+        <label>Número de turnos</label>
+        <div class="turnos-group">
+          <button class="turno-btn" onclick="selectTurno(1)">1 turno</button>
+          <button class="turno-btn" onclick="selectTurno(2)">2 turnos</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Procedimentos realizados <span style="color:#aaa">(opcional)</span></label>
+        <div class="proc-group">
+          <button class="proc-btn" onclick="toggleProc(this,'permcath')">Permcath</button>
+          <button class="proc-btn" onclick="toggleProc(this,'schilley')">Schilley</button>
+        </div>
+        <div id="qtd-permcath" style="display:none;margin-top:10px">
+          <label style="font-size:12px;color:#888">Quantidade de Permcath</label>
+          <input type="text" id="n-permcath" placeholder="ex: 1" style="width:80px;margin-top:4px"/>
+        </div>
+        <div id="qtd-schilley" style="display:none;margin-top:10px">
+          <label style="font-size:12px;color:#888">Quantidade de Schilley</label>
+          <input type="text" id="n-schilley" placeholder="ex: 1" style="width:80px;margin-top:4px"/>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-reg" onclick="registrar()">Registrar plantão</button>
+    </div>
+  </div>
 
-  <div class="body">
-    <!-- ABA PONTO -->
-    <div id="aba-ponto">
-      <div class="relogio" id="relogio"></div>
-      <div id="aviso-script" class="warn" style="display:none">
-        ⚠️ Nenhum Apps Script configurado. Acesse <strong>Configurações</strong> para conectar o Google Sheets.
+  <!-- ADMIN -->
+  <div id="tab-admin" class="tab-content">
+    <div id="lock-admin" class="card lock-screen">
+      <i class="ti ti-lock"></i>
+      <p>Esta área é restrita ao administrador.<br>Digite a senha para continuar.</p>
+      <input class="lock-input" type="password" id="senha-admin" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha('admin')"/>
+      <br><button class="btn-entrar" onclick="checkSenha('admin')">Entrar</button>
+      <div class="erro-senha" id="erro-admin"></div>
+    </div>
+    <div id="conteudo-admin" style="display:none">
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.75rem;gap:8px">
+        <span class="adm-badge"><i class="ti ti-shield-check"></i> Administrador</span>
+        <button class="btn-sair" onclick="sair()">Sair</button>
       </div>
       <div class="card">
-        <label class="lbl">Selecione seu nome</label>
-        <select id="select-nome">
-          <option value="">— escolha um funcionário —</option>
-        </select>
-        <div id="aviso-sem-func" style="display:none;font-size:13px;color:#888;margin-bottom:14px">
-          Nenhum funcionário cadastrado. Acesse <strong>Configurações</strong> para adicionar.
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px">
+          <p class="section-title" style="margin:0">Resumo mensal</p>
+          <select class="mes-select" id="mes-select" onchange="renderResumo()"></select>
         </div>
-        <label class="lbl">Tipo de registro</label>
-        <div class="acoes">
-          <button class="acao-btn" onclick="selecionarAcao('entrada',this)">🟢 Entrada</button>
-          <button class="acao-btn" onclick="selecionarAcao('inicio_intervalo',this)">🟡 Início de intervalo</button>
-          <button class="acao-btn" onclick="selecionarAcao('fim_intervalo',this)">🔵 Fim de intervalo</button>
-          <button class="acao-btn" onclick="selecionarAcao('saida',this)">🔴 Saída</button>
-        </div>
-        <button class="btn" id="btn-confirmar" onclick="confirmar()" disabled>Confirmar registro</button>
-        <div id="msg-confirmado" style="display:none" class="alert success"></div>
+        <div id="resumo-content"></div>
+      </div>
+      <div class="card">
+        <p class="section-title">Registros do mês</p>
+        <div id="log-content" class="log-list"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ABA RELATORIO -->
-    <div id="aba-relatorio" style="display:none">
-      <div id="login-relatorio" class="login-wrap">
-        <div class="card">
-          <h3>Acesso restrito</h3>
-          <label class="lbl">Senha administrativa</label>
-          <input type="password" id="senha-relatorio" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')entrarRelatorio()"/>
-          <div id="erro-relatorio" class="alert danger" style="display:none">Senha incorreta.</div>
-          <button class="btn" onclick="entrarRelatorio()">Entrar</button>
-        </div>
-      </div>
-      <div id="conteudo-relatorio" style="display:none">
-        <div style="margin-bottom:12px">
-          <button class="btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
-          <button class="btn-sm" onclick="sairRelatorio()">Sair</button>
-        </div>
-        <div class="card">
-          <p id="status-relatorio" style="font-size:13px;color:#888;margin-bottom:14px"></p>
-          <div style="overflow-x:auto">
-            <table>
-              <thead><tr><th>Funcionário</th><th>Tipo</th><th>Data</th><th>Hora</th></tr></thead>
-              <tbody id="tbody-registros"></tbody>
-            </table>
-          </div>
-          <p id="sem-registros" style="color:#bbb;font-size:14px;display:none">Nenhum registro ainda.</p>
-        </div>
-      </div>
+  <!-- CONFIG -->
+  <div id="tab-config" class="tab-content">
+    <div id="lock-config" class="card lock-screen">
+      <i class="ti ti-lock"></i>
+      <p>Esta área é restrita ao administrador.<br>Digite a senha para continuar.</p>
+      <input class="lock-input" type="password" id="senha-config" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha('config')"/>
+      <br><button class="btn-entrar" onclick="checkSenha('config')">Entrar</button>
+      <div class="erro-senha" id="erro-config"></div>
     </div>
-
-    <!-- ABA CONFIGURACOES -->
-    <div id="aba-configuracoes" style="display:none">
-      <div id="login-config" class="login-wrap">
-        <div class="card">
-          <h3>Acesso restrito</h3>
-          <label class="lbl">Senha administrativa</label>
-          <input type="password" id="senha-config" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')entrarConfig()"/>
-          <div id="erro-config" class="alert danger" style="display:none">Senha incorreta.</div>
-          <button class="btn" onclick="entrarConfig()">Entrar</button>
+    <div id="conteudo-config" style="display:none">
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.75rem;gap:8px">
+        <span class="adm-badge"><i class="ti ti-shield-check"></i> Administrador</span>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+      </div>
+      <div class="card">
+        <p class="section-title">Médicos ativos</p>
+        <div id="lista-medicos"></div>
+        <div class="add-medico-row">
+          <input type="text" id="novo-medico" placeholder="Nome do novo médico..." onkeydown="if(event.key==='Enter')adicionarMedico()"/>
+          <button class="btn-adicionar" onclick="adicionarMedico()">Adicionar</button>
         </div>
       </div>
-      <div id="conteudo-config" style="display:none">
-        <div style="text-align:right;margin-bottom:12px">
-          <button class="btn-sm" onclick="sairConfig()">Sair</button>
+
+      <div class="card">
+        <p class="section-title">Integração com Google Sheets</p>
+        <p style="font-size:13px;color:#888;margin-bottom:4px">ID da planilha</p>
+        <div class="mono">1weiRZKyiXERxzZ8ZQ1WePWSpVYMVKeXcSyLLV2-oT0M</div>
+        <p style="font-size:13px;color:#888;margin-top:12px;margin-bottom:4px">URL do Apps Script</p>
+        <div class="mono">https://script.google.com/macros/s/AKfycbz_QwV0dAC3veCU4X_n_WvssBxl2lOR8LWT9_4P1A_yXSWxgB0eGX7GANE-pggbXglQ/exec</div>
+        <div class="info-box">
+          <span style="width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block;margin-right:6px"></span>
+          Configuração ativa. Registros são enviados automaticamente à planilha.
         </div>
-        <div class="card">
-          <h3>Funcionários cadastrados</h3>
-          <div id="lista-funcionarios"></div>
-          <div style="margin-top:18px">
-            <label class="lbl">Adicionar novo funcionário</label>
-            <input type="text" id="input-novo-func" placeholder="Nome completo..." onkeydown="if(event.key==='Enter')adicionarFuncionario()"/>
-            <button class="btn" onclick="adicionarFuncionario()">Adicionar</button>
-            <div id="msg-func" style="display:none" class="alert success"></div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Google Sheets — Apps Script</h3>
-          <p style="font-size:13px;color:#888;margin-bottom:8px">
-            Cole a URL gerada ao publicar o Apps Script. Ela termina em <code>/exec</code>
-          </p>
-          <p style="font-size:13px;margin-bottom:14px" id="status-script"></p>
-          <label class="lbl">URL do Apps Script</label>
-          <input type="text" id="input-script" placeholder="https://script.google.com/macros/s/.../exec"/>
-          <button class="btn" onclick="salvarScript()">Salvar URL</button>
-          <div id="msg-script" style="display:none" class="alert success"></div>
-        </div>
+      </div>
+      <div class="card">
+        <p class="section-title">Feriados nacionais (2025–2026)</p>
+        <div id="lista-feriados" style="font-size:13px;color:#888;line-height:2.2"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const SENHA = "acessoadm";
-const ACOES_LABEL = {entrada:"Entrada",inicio_intervalo:"Início de intervalo",fim_intervalo:"Fim de intervalo",saida:"Saída"};
-let acaoSel = "";
-let sincronizando = false;
+const MEDICOS_PADRAO=['Angela','Anthony','Taíse','Liege','Lucas','Gabriel','Rafaela','Tassiane'];
+const SENHA='acessoadm';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_QwV0dAC3veCU4X_n_WvssBxl2lOR8LWT9_4P1A_yXSWxgB0eGX7GANE-pggbXglQ/exec';
+const FERIADOS=["2025-01-01","2025-04-18","2025-04-19","2025-04-21","2025-05-01","2025-06-19","2025-09-07","2025-10-12","2025-11-02","2025-11-15","2025-11-20","2025-12-25","2026-01-01","2026-04-03","2026-04-04","2026-04-21","2026-05-01","2026-06-04","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25"];
+const FERIADOS_NOMES={"2025-01-01":"Confraternização Universal","2025-04-18":"Sexta-feira Santa","2025-04-19":"Páscoa","2025-04-21":"Tiradentes","2025-05-01":"Dia do Trabalho","2025-06-19":"Corpus Christi","2025-09-07":"Independência","2025-10-12":"Nossa Senhora Aparecida","2025-11-02":"Finados","2025-11-15":"Proclamação da República","2025-11-20":"Consciência Negra","2025-12-25":"Natal","2026-01-01":"Confraternização Universal","2026-04-03":"Sexta-feira Santa","2026-04-04":"Páscoa","2026-04-21":"Tiradentes","2026-05-01":"Dia do Trabalho","2026-06-04":"Corpus Christi","2026-09-07":"Independência","2026-10-12":"Nossa Senhora Aparecida","2026-11-02":"Finados","2026-11-15":"Proclamação da República","2026-11-20":"Consciência Negra","2026-12-25":"Natal"};
 
-function getData() { return JSON.parse(localStorage.getItem("udr_registros")||"[]"); }
-function getFuncs() { return JSON.parse(localStorage.getItem("udr_funcionarios")||"[]"); }
-function getScript() { return localStorage.getItem("udr_script_url")||""; }
-function setData(d) { localStorage.setItem("udr_registros",JSON.stringify(d)); }
-function setFuncs(f) { localStorage.setItem("udr_funcionarios",JSON.stringify(f)); }
+let registros=JSON.parse(localStorage.getItem('plantoes')||'[]');
+let medicos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO));
+let turnosSel=0,procsAtivos={},admAutenticado=false;
 
-function pad(n){return String(n).padStart(2,"0")}
-function formatData(d){return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`}
-function formatHora(d){return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+function salvarMedicos(){localStorage.setItem('medicos',JSON.stringify(medicos));}
 
-setInterval(()=>{
-  const now=new Date();
-  document.getElementById("relogio").textContent=`📅 ${formatData(now)}   🕐 ${formatHora(now)}`;
-},1000);
-
-function trocarAba(aba,btn){
-  ["ponto","relatorio","configuracoes"].forEach(a=>{
-    document.getElementById("aba-"+a).style.display = a===aba?"block":"none";
-  });
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  if(aba==="relatorio") renderRelatorio();
-  if(aba==="configuracoes") renderConfigStatus();
+function renderSelectMedicos(){
+  const sel=document.getElementById('medico'),val=sel.value;
+  sel.innerHTML='<option value="">Selecione...</option>'+medicos.map(m=>`<option value="${m}">${m}</option>`).join('');
+  if(val)sel.value=val;
 }
 
-function atualizarSelectNomes(){
-  const sel=document.getElementById("select-nome");
-  const funcs=getFuncs();
-  sel.innerHTML='<option value="">— escolha um funcionário —</option>';
-  funcs.forEach(f=>{ const o=document.createElement("option"); o.value=o.textContent=f; sel.appendChild(o); });
-  document.getElementById("aviso-sem-func").style.display=funcs.length===0?"block":"none";
+function renderListaMedicos(){
+  const el=document.getElementById('lista-medicos');
+  if(!medicos.length){el.innerHTML='<p style="font-size:13px;color:#aaa;padding:8px 0">Nenhum médico cadastrado.</p>';return;}
+  el.innerHTML=medicos.map((m,i)=>`<div class="medico-item"><span>${m}</span><button class="btn-remover" onclick="removerMedico(${i})">Remover</button></div>`).join('');
 }
 
-function selecionarAcao(id,btn){
-  acaoSel=id;
-  document.querySelectorAll(".acao-btn").forEach(b=>b.classList.remove("sel"));
-  btn.classList.add("sel");
-  verificarBotao();
+function adicionarMedico(){
+  const inp=document.getElementById('novo-medico'),nome=inp.value.trim();
+  if(!nome)return;
+  if(medicos.map(m=>m.toLowerCase()).includes(nome.toLowerCase())){showToast('Este médico já está na lista.','erro');return;}
+  medicos.push(nome);salvarMedicos();renderSelectMedicos();renderListaMedicos();
+  inp.value='';showToast(nome+' adicionado!','ok');
 }
 
-document.getElementById("select-nome").addEventListener("change", verificarBotao);
-
-function verificarBotao(){
-  const nome=document.getElementById("select-nome").value;
-  document.getElementById("btn-confirmar").disabled = !nome||!acaoSel||sincronizando;
+function removerMedico(i){
+  if(!confirm('Remover '+medicos[i]+' da lista?'))return;
+  const nome=medicos[i];medicos.splice(i,1);salvarMedicos();renderSelectMedicos();renderListaMedicos();
+  showToast(nome+' removido.','ok');
 }
 
-function showSync(msg,cls){
-  const el=document.getElementById("sync-badge");
-  el.textContent=msg; el.className="sync-badge "+(cls||"");
-  el.style.display="inline-block";
+function tipoDia(d){if(FERIADOS.includes(d))return'feriado';const w=new Date(d+'T12:00:00').getDay();return(w===0||w===6)?'fds':'semana';}
+function tipoInfo(t){if(t==='semana')return{label:'Dia de semana',cls:'tipo-semana'};if(t==='fds')return{label:'Fim de semana',cls:'tipo-fds'};return{label:'Feriado',cls:'tipo-feriado'};}
+
+document.getElementById('data-plantao').addEventListener('change',function(){
+  const c=document.getElementById('tipo-dia-container'),b=document.getElementById('tipo-dia-badge');
+  if(!this.value){c.style.display='none';return;}
+  const i=tipoInfo(tipoDia(this.value));b.textContent=i.label;b.className='tipo-badge '+i.cls;c.style.display='block';
+});
+
+function selectTurno(n){turnosSel=n;document.querySelectorAll('.turno-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));}
+function toggleProc(btn,tipo){const on=btn.classList.toggle('selected');procsAtivos[tipo]=on;document.getElementById('qtd-'+tipo).style.display=on?'block':'none';}
+
+async function registrar(){
+  const med=document.getElementById('medico').value,data=document.getElementById('data-plantao').value;
+  if(!med||!data||!turnosSel){alert('Preencha o médico, a data e o número de turnos.');return;}
+  const permcath=procsAtivos['permcath']?(parseInt(document.getElementById('n-permcath').value)||1):0;
+  const schilley=procsAtivos['schilley']?(parseInt(document.getElementById('n-schilley').value)||1):0;
+  const reg={id:Date.now(),medico:med,data,tipo:tipoDia(data),turnos:turnosSel,permcath,schilley};
+  const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='Enviando...';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)});
+    registros.push(reg);localStorage.setItem('plantoes',JSON.stringify(registros));
+    showToast('Plantão de '+med+' registrado!','ok');resetForm();
+  }catch(e){showToast('Erro ao enviar. Verifique a conexão.','erro');}
+  btn.disabled=false;btn.textContent='Registrar plantão';
 }
-function hideSync(){ document.getElementById("sync-badge").style.display="none"; }
 
-async function confirmar(){
-  const nome=document.getElementById("select-nome").value;
-  if(!nome||!acaoSel||sincronizando) return;
-  const now=new Date();
-  const reg={id:Date.now(),nome,acao:acaoSel,timestamp:now.toISOString(),data:formatData(now),hora:formatHora(now)};
-  const lista=[reg,...getData()];
-  setData(lista);
+function resetForm(){
+  document.getElementById('medico').value='';document.getElementById('data-plantao').value='';
+  turnosSel=0;procsAtivos={};
+  document.querySelectorAll('.turno-btn,.proc-btn').forEach(b=>b.classList.remove('selected'));
+  ['permcath','schilley'].forEach(t=>{document.getElementById('qtd-'+t).style.display='none';document.getElementById('n-'+t).value='';});
+  document.getElementById('tipo-dia-container').style.display='none';
+}
 
-  const div=document.getElementById("msg-confirmado");
-  div.textContent=`✅ ${nome} — ${ACOES_LABEL[acaoSel]} às ${reg.hora}`;
-  div.style.display="block";
-  setTimeout(()=>div.style.display="none",5000);
+function showToast(msg,tipo){
+  const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;
+  t.className='toast '+(tipo==='ok'?'ok':'erro')+' show';setTimeout(()=>t.classList.remove('show'),4000);
+}
 
-  document.getElementById("select-nome").value="";
-  acaoSel="";
-  document.querySelectorAll(".acao-btn").forEach(b=>b.classList.remove("sel"));
-  verificarBotao();
+function showTab(id,e){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');e.target.classList.add('active');
+  if(id==='admin'&&admAutenticado){renderMesSelect();renderResumo();}
+  if(id==='config'&&admAutenticado){renderListaMedicos();renderFeriados();}
+}
 
-  const url=getScript();
-  if(url){
-    sincronizando=true;
-    showSync("⏳ Enviando...","");
-    document.getElementById("btn-confirmar").disabled=true;
-    try{
-      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"text/plain"},
-        body:JSON.stringify({nome:reg.nome,acao:ACOES_LABEL[reg.acao],data:reg.data,hora:reg.hora,timestamp:reg.timestamp})});
-      const j=await r.json();
-      showSync(j.status==="ok"?"✅ Enviado ao Sheets":"⚠️ Erro no envio", j.status==="ok"?"sync-ok":"sync-err");
-    }catch(e){ showSync("❌ Falha na sincronização","sync-err"); }
-    sincronizando=false;
-    verificarBotao();
-    setTimeout(hideSync,4000);
+function checkSenha(area){
+  const inp=document.getElementById('senha-'+area),erro=document.getElementById('erro-'+area);
+  if(inp.value===SENHA){
+    admAutenticado=true;
+    document.getElementById('lock-'+area).style.display='none';
+    document.getElementById('conteudo-'+area).style.display='block';
+    if(area==='admin'){renderMesSelect();renderResumo();}
+    if(area==='config'){renderListaMedicos();renderFeriados();}
+    erro.textContent='';inp.value='';
+  }else{
+    erro.textContent='Senha incorreta. Tente novamente.';
+    inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),300);inp.value='';
   }
 }
 
-function renderRelatorio(){
-  const regs=getData(); const url=getScript();
-  document.getElementById("status-relatorio").innerHTML=
-    `${regs.length} registro(s) · Sheets ${url?'<span style="color:#16a34a">✅ conectado</span>':'<span style="color:#dc2626">❌ não configurado</span>'}`;
-  const tbody=document.getElementById("tbody-registros");
-  tbody.innerHTML="";
-  document.getElementById("sem-registros").style.display=regs.length===0?"block":"none";
-  regs.forEach(r=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${r.nome}</td><td><span class="badge ${r.acao}">${ACOES_LABEL[r.acao]||r.acao}</span></td><td>${r.data}</td><td>${r.hora}</td>`;
-    tbody.appendChild(tr);
-  });
+function sair(){
+  admAutenticado=false;
+  ['admin','config'].forEach(a=>{document.getElementById('lock-'+a).style.display='block';document.getElementById('conteudo-'+a).style.display='none';});
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-registro').classList.add('active');document.querySelector('.tab').classList.add('active');
 }
 
-function entrarRelatorio(){
-  if(document.getElementById("senha-relatorio").value===SENHA){
-    document.getElementById("login-relatorio").style.display="none";
-    document.getElementById("conteudo-relatorio").style.display="block";
-    document.getElementById("erro-relatorio").style.display="none";
-    renderRelatorio();
-  } else { document.getElementById("erro-relatorio").style.display="block"; }
-}
-function sairRelatorio(){
-  document.getElementById("login-relatorio").style.display="block";
-  document.getElementById("conteudo-relatorio").style.display="none";
-  document.getElementById("senha-relatorio").value="";
-  document.getElementById("erro-relatorio").style.display="none";
+function fmt(n){return'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2});}
+function getMeses(){const s=new Set(registros.map(r=>r.data.slice(0,7)));s.add(new Date().toISOString().slice(0,7));return Array.from(s).sort().reverse();}
+
+function renderMesSelect(){
+  document.getElementById('mes-select').innerHTML=getMeses().map(m=>{
+    const[y,mo]=m.split('-'),n=new Date(y,mo-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
+    return`<option value="${m}">${n.charAt(0).toUpperCase()+n.slice(1)}</option>`;
+  }).join('');
 }
 
-function exportarCSV(){
-  const regs=getData();
-  let csv="Funcionário,Tipo de Registro,Data,Hora,Timestamp\n";
-  csv+=regs.map(r=>`"${r.nome}","${ACOES_LABEL[r.acao]||r.acao}","${r.data}","${r.hora}","${r.timestamp}"`).join("\n");
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-  a.download="ponto_udr.csv"; a.click();
+function renderResumo(){
+  const mes=document.getElementById('mes-select').value,regs=registros.filter(r=>r.data.startsWith(mes));
+  const todosMedicos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO)),dados={};
+  todosMedicos.forEach(m=>dados[m]={semana:0,fds:0,permcath:0,schilley:0});
+  regs.forEach(r=>{if(!dados[r.medico])dados[r.medico]={semana:0,fds:0,permcath:0,schilley:0};if(r.tipo==='semana')dados[r.medico].semana+=r.turnos;else dados[r.medico].fds+=r.turnos;dados[r.medico].permcath+=r.permcath||0;dados[r.medico].schilley+=r.schilley||0;});
+  const ativos=Object.keys(dados).filter(m=>dados[m].semana>0||dados[m].fds>0||dados[m].permcath>0||dados[m].schilley>0);
+  if(!ativos.length){document.getElementById('resumo-content').innerHTML='<div class="empty-state">Nenhum registro neste mês.</div>';document.getElementById('log-content').innerHTML='<div class="empty-state">Sem registros.</div>';return;}
+  let totalGeral=0;
+  const rows=ativos.map(m=>{const d=dados[m],total=d.semana*575+d.fds*600+d.permcath*350+d.schilley*100;totalGeral+=total;return`<tr><td>${m}</td><td style="text-align:center">${d.semana}</td><td style="text-align:center">${d.fds}</td><td style="text-align:center">${d.permcath}</td><td style="text-align:center">${d.schilley}</td><td class="valor" style="text-align:right">${fmt(total)}</td></tr>`;}).join('');
+  document.getElementById('resumo-content').innerHTML=`<div style="overflow-x:auto"><table class="resumo-table"><thead><tr><th>Médico</th><th style="text-align:center">Turnos<br>semana</th><th style="text-align:center">Turnos<br>FDS/Fer.</th><th style="text-align:center">Permcath</th><th style="text-align:center">Schilley</th><th style="text-align:right">Total</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="border-top:1px solid #eee"><td colspan="5" style="padding-top:10px;color:#888;font-size:12px">Total geral</td><td class="valor" style="text-align:right;padding-top:10px">${fmt(totalGeral)}</td></tr></tfoot></table></div>`;
+  document.getElementById('log-content').innerHTML=regs.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(r=>{const i=tipoInfo(r.tipo),p=[];if(r.permcath)p.push(r.permcath+'× Permcath');if(r.schilley)p.push(r.schilley+'× Schilley');return`<div class="log-item"><strong>${r.medico}</strong> — ${r.turnos} turno${r.turnos>1?'s':''} <span style="font-size:11px;padding:2px 7px;border-radius:4px" class="${i.cls}">${i.label}</span>${p.length?' <span style="color:#aaa;font-size:12px">'+p.join(', ')+'</span>':''}<div class="log-meta">${new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR')}</div></div>`;}).join('');
 }
 
-function renderConfigStatus(){
-  const url=getScript();
-  document.getElementById("status-script").innerHTML=
-    `Status: ${url?'<strong style="color:#16a34a">✅ configurado</strong>':'<strong style="color:#dc2626">❌ não configurado</strong>'}`;
-  document.getElementById("input-script").value=url;
-  renderListaFuncs();
-}
+function renderFeriados(){document.getElementById('lista-feriados').innerHTML=Object.entries(FERIADOS_NOMES).map(([d,n])=>`<div>${new Date(d+'T12:00:00').toLocaleDateString('pt-BR')} — ${n}</div>`).join('');}
 
-function renderListaFuncs(){
-  const funcs=getFuncs();
-  const div=document.getElementById("lista-funcionarios");
-  if(funcs.length===0){ div.innerHTML='<p style="font-size:13px;color:#bbb">Nenhum funcionário cadastrado ainda.</p>'; return; }
-  div.innerHTML=funcs.map(f=>`
-    <div class="func-row">
-      <span>${f}</span>
-      <button onclick="removerFuncionario('${f.replace(/'/g,"\\'")}')">Remover</button>
-    </div>`).join("");
-}
-
-function adicionarFuncionario(){
-  const input=document.getElementById("input-novo-func");
-  const n=input.value.trim();
-  const funcs=getFuncs();
-  const msg=document.getElementById("msg-func");
-  if(!n||funcs.includes(n)){ msg.textContent="Nome inválido ou já existe."; msg.className="alert danger"; msg.style.display="block"; setTimeout(()=>msg.style.display="none",3000); return; }
-  const nova=[...funcs,n].sort();
-  setFuncs(nova);
-  input.value="";
-  msg.textContent=`"${n}" adicionado com sucesso.`; msg.className="alert success"; msg.style.display="block";
-  setTimeout(()=>msg.style.display="none",3000);
-  renderListaFuncs();
-  atualizarSelectNomes();
-}
-
-function removerFuncionario(nome){
-  setFuncs(getFuncs().filter(f=>f!==nome));
-  renderListaFuncs();
-  atualizarSelectNomes();
-}
-
-function salvarScript(){
-  const url=document.getElementById("input-script").value.trim();
-  localStorage.setItem("udr_script_url",url);
-  const msg=document.getElementById("msg-script");
-  msg.textContent="URL salva com sucesso!"; msg.style.display="block";
-  setTimeout(()=>msg.style.display="none",3000);
-  renderConfigStatus();
-  document.getElementById("aviso-script").style.display=url?"none":"block";
-}
-
-function entrarConfig(){
-  if(document.getElementById("senha-config").value===SENHA){
-    document.getElementById("login-config").style.display="none";
-    document.getElementById("conteudo-config").style.display="block";
-    document.getElementById("erro-config").style.display="none";
-    renderConfigStatus();
-  } else { document.getElementById("erro-config").style.display="block"; }
-}
-function sairConfig(){
-  document.getElementById("login-config").style.display="block";
-  document.getElementById("conteudo-config").style.display="none";
-  document.getElementById("senha-config").value="";
-  document.getElementById("erro-config").style.display="none";
-}
-
-// init
-atualizarSelectNomes();
-document.getElementById("aviso-script").style.display=getScript()?"none":"block";
-const now=new Date();
-document.getElementById("relogio").textContent=`📅 ${formatData(now)}   🕐 ${formatHora(now)}`;
+document.getElementById('data-plantao').value=new Date().toISOString().slice(0,10);
+document.getElementById('data-plantao').dispatchEvent(new Event('change'));
+renderSelectMedicos();
 </script>
 </body>
 </html>
