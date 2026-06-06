@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Registro de Plantões — Clínica de Hemodiálise</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh}
@@ -53,7 +52,6 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .tab-content{display:none}
 .tab-content.active{display:block}
 .lock-screen{text-align:center;padding:2.5rem 1rem}
-.lock-screen .ti{font-size:36px;color:#ccc}
 .lock-screen p{font-size:14px;color:#888;margin:0.75rem 0 1.25rem;line-height:1.6}
 .lock-input{width:100%;max-width:260px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111;text-align:center;letter-spacing:2px;outline:none}
 .lock-input:focus{border-color:#378ADD}
@@ -65,17 +63,20 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .adm-badge{font-size:11px;padding:3px 9px;background:#EAF3DE;color:#27500A;border-radius:6px;font-weight:500}
 .btn-sair{font-size:12px;color:#aaa;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline}
 .btn-sair:hover{color:#666}
-.info-box{background:#f7f7f5;border:1px solid #e5e5e5;border-radius:8px;padding:12px;font-size:13px;color:#666;margin-top:1rem}
 .mono{font-family:monospace;font-size:12px;background:#f0f0ee;padding:8px 10px;border-radius:6px;word-break:break-all;margin-top:6px}
 .medico-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f0f0f0;font-size:14px}
 .medico-item:last-child{border-bottom:none}
-.btn-remover{background:none;border:none;cursor:pointer;color:#A32D2D;font-size:13px;padding:3px 8px;border-radius:6px;transition:background 0.15s}
+.btn-remover{background:none;border:none;cursor:pointer;color:#A32D2D;font-size:13px;padding:3px 8px;border-radius:6px}
 .btn-remover:hover{background:#FCEBEB}
 .add-medico-row{display:flex;gap:8px;margin-top:12px}
 .add-medico-row input{flex:1;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;color:#111;outline:none}
 .add-medico-row input:focus{border-color:#378ADD}
 .btn-adicionar{padding:9px 18px;background:#378ADD;border:none;border-radius:8px;color:#fff;font-size:14px;cursor:pointer;white-space:nowrap;font-weight:500}
 .btn-adicionar:hover{background:#185FA5}
+.sync-badge{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:500}
+.sync-ok{background:#EAF3DE;color:#27500A}
+.sync-carregando{background:#FAEEDA;color:#633806}
+.sync-erro{background:#FCEBEB;color:#791F1F}
 </style>
 </head>
 <body>
@@ -84,22 +85,20 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
   <p class="subtitle">Clínica de Hemodiálise</p>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('registro',event)"><i class="ti ti-calendar-plus"></i> Registrar plantão</button>
-    <button class="tab" onclick="showTab('admin',event)"><i class="ti ti-chart-bar"></i> Resumo mensal</button>
-    <button class="tab" onclick="showTab('config',event)"><i class="ti ti-settings"></i> Configurações</button>
+    <button class="tab active" onclick="showTab('registro',event)">Registrar plantão</button>
+    <button class="tab" onclick="showTab('admin',event)">Resumo mensal</button>
+    <button class="tab" onclick="showTab('config',event)">Configurações</button>
   </div>
 
   <!-- REGISTRO -->
   <div id="tab-registro" class="tab-content active">
-    <div id="toast" class="toast ok"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+    <div id="toast" class="toast ok"><span id="toast-msg"></span></div>
     <div class="card">
       <p class="section-title">Dados do plantão</p>
       <div class="row">
         <div class="field">
           <label>Médico</label>
-          <select id="medico">
-            <option value="">Selecione...</option>
-          </select>
+          <select id="medico"><option value="">Carregando...</option></select>
         </div>
         <div class="field">
           <label>Data do plantão</label>
@@ -138,7 +137,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
   <!-- ADMIN -->
   <div id="tab-admin" class="tab-content">
     <div id="lock-admin" class="card lock-screen">
-      <i class="ti ti-lock"></i>
+      <p style="font-size:28px">🔒</p>
       <p>Esta área é restrita ao administrador.<br>Digite a senha para continuar.</p>
       <input class="lock-input" type="password" id="senha-admin" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha('admin')"/>
       <br><button class="btn-entrar" onclick="checkSenha('admin')">Entrar</button>
@@ -146,7 +145,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
     </div>
     <div id="conteudo-admin" style="display:none">
       <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.75rem;gap:8px">
-        <span class="adm-badge"><i class="ti ti-shield-check"></i> Administrador</span>
+        <span class="adm-badge">Administrador</span>
         <button class="btn-sair" onclick="sair()">Sair</button>
       </div>
       <div class="card">
@@ -166,7 +165,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
   <!-- CONFIG -->
   <div id="tab-config" class="tab-content">
     <div id="lock-config" class="card lock-screen">
-      <i class="ti ti-lock"></i>
+      <p style="font-size:28px">🔒</p>
       <p>Esta área é restrita ao administrador.<br>Digite a senha para continuar.</p>
       <input class="lock-input" type="password" id="senha-config" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha('config')"/>
       <br><button class="btn-entrar" onclick="checkSenha('config')">Entrar</button>
@@ -174,27 +173,29 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
     </div>
     <div id="conteudo-config" style="display:none">
       <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.75rem;gap:8px">
-        <span class="adm-badge"><i class="ti ti-shield-check"></i> Administrador</span>
+        <span class="adm-badge">Administrador</span>
         <button class="btn-sair" onclick="sair()">Sair</button>
       </div>
       <div class="card">
-        <p class="section-title">Médicos ativos</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <p class="section-title" style="margin:0">Médicos ativos</p>
+          <span id="sync-status" class="sync-badge sync-carregando">Sincronizando...</span>
+        </div>
         <div id="lista-medicos"></div>
         <div class="add-medico-row">
           <input type="text" id="novo-medico" placeholder="Nome do novo médico..." onkeydown="if(event.key==='Enter')adicionarMedico()"/>
           <button class="btn-adicionar" onclick="adicionarMedico()">Adicionar</button>
         </div>
       </div>
-
       <div class="card">
         <p class="section-title">Integração com Google Sheets</p>
         <p style="font-size:13px;color:#888;margin-bottom:4px">ID da planilha</p>
         <div class="mono">1weiRZKyiXERxzZ8ZQ1WePWSpVYMVKeXcSyLLV2-oT0M</div>
         <p style="font-size:13px;color:#888;margin-top:12px;margin-bottom:4px">URL do Apps Script</p>
         <div class="mono">https://script.google.com/macros/s/AKfycbz_QwV0dAC3veCU4X_n_WvssBxl2lOR8LWT9_4P1A_yXSWxgB0eGX7GANE-pggbXglQ/exec</div>
-        <div class="info-box">
+        <div style="margin-top:12px;background:#f7f7f5;border:1px solid #e5e5e5;border-radius:8px;padding:12px;font-size:13px;color:#666">
           <span style="width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block;margin-right:6px"></span>
-          Configuração ativa. Registros são enviados automaticamente à planilha.
+          Configuração ativa. Registros e lista de médicos sincronizados com a planilha.
         </div>
       </div>
       <div class="card">
@@ -206,63 +207,97 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 </div>
 
 <script>
-const MEDICOS_PADRAO=['Angela','Anthony','Taíse','Liege','Lucas','Gabriel','Rafaela','Tassiane'];
-const SENHA='acessoadm';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_QwV0dAC3veCU4X_n_WvssBxl2lOR8LWT9_4P1A_yXSWxgB0eGX7GANE-pggbXglQ/exec';
-const FERIADOS=["2025-01-01","2025-04-18","2025-04-19","2025-04-21","2025-05-01","2025-06-19","2025-09-07","2025-10-12","2025-11-02","2025-11-15","2025-11-20","2025-12-25","2026-01-01","2026-04-03","2026-04-04","2026-04-21","2026-05-01","2026-06-04","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25"];
-const FERIADOS_NOMES={"2025-01-01":"Confraternização Universal","2025-04-18":"Sexta-feira Santa","2025-04-19":"Páscoa","2025-04-21":"Tiradentes","2025-05-01":"Dia do Trabalho","2025-06-19":"Corpus Christi","2025-09-07":"Independência","2025-10-12":"Nossa Senhora Aparecida","2025-11-02":"Finados","2025-11-15":"Proclamação da República","2025-11-20":"Consciência Negra","2025-12-25":"Natal","2026-01-01":"Confraternização Universal","2026-04-03":"Sexta-feira Santa","2026-04-04":"Páscoa","2026-04-21":"Tiradentes","2026-05-01":"Dia do Trabalho","2026-06-04":"Corpus Christi","2026-09-07":"Independência","2026-10-12":"Nossa Senhora Aparecida","2026-11-02":"Finados","2026-11-15":"Proclamação da República","2026-11-20":"Consciência Negra","2026-12-25":"Natal"};
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_QwV0dAC3veCU4X_n_WvssBxl2lOR8LWT9_4P1A_yXSWxgB0eGX7GANE-pggbXglQ/exec';
+var SENHA='acessoadm';
+var MEDICOS_PADRAO=['Angela','Anthony','Taíse','Liege','Lucas','Gabriel','Rafaela','Tassiane','João Bruno','Ana Carolina'];
+var FERIADOS=["2025-01-01","2025-04-18","2025-04-19","2025-04-21","2025-05-01","2025-06-19","2025-09-07","2025-10-12","2025-11-02","2025-11-15","2025-11-20","2025-12-25","2026-01-01","2026-04-03","2026-04-04","2026-04-21","2026-05-01","2026-06-04","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25"];
+var FERIADOS_NOMES={"2025-01-01":"Confraternização Universal","2025-04-18":"Sexta-feira Santa","2025-04-19":"Páscoa","2025-04-21":"Tiradentes","2025-05-01":"Dia do Trabalho","2025-06-19":"Corpus Christi","2025-09-07":"Independência","2025-10-12":"Nossa Senhora Aparecida","2025-11-02":"Finados","2025-11-15":"Proclamação da República","2025-11-20":"Consciência Negra","2025-12-25":"Natal","2026-01-01":"Confraternização Universal","2026-04-03":"Sexta-feira Santa","2026-04-04":"Páscoa","2026-04-21":"Tiradentes","2026-05-01":"Dia do Trabalho","2026-06-04":"Corpus Christi","2026-09-07":"Independência","2026-10-12":"Nossa Senhora Aparecida","2026-11-02":"Finados","2026-11-15":"Proclamação da República","2026-11-20":"Consciência Negra","2026-12-25":"Natal"};
 
-let registros=JSON.parse(localStorage.getItem('plantoes')||'[]');
-let medicos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO));
-let turnosSel=0,procsAtivos={},admAutenticado=false;
+var registros=JSON.parse(localStorage.getItem('plantoes')||'[]');
+var medicos=MEDICOS_PADRAO.slice();
+var turnosSel=0,procsAtivos={},admAutenticado=false;
 
-function salvarMedicos(){localStorage.setItem('medicos',JSON.stringify(medicos));}
+async function carregarMedicos(){
+  try{
+    var r=await fetch(SCRIPT_URL+'?action=getMedicos');
+    var d=await r.json();
+    if(d.medicos&&d.medicos.length){medicos=d.medicos;}
+    else{await salvarMedicosServidor();}
+  }catch(e){
+    medicos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO));
+  }
+  localStorage.setItem('medicos',JSON.stringify(medicos));
+  renderSelectMedicos();
+}
+
+async function salvarMedicosServidor(){
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'saveMedicos',medicos:medicos})});
+    localStorage.setItem('medicos',JSON.stringify(medicos));
+    setSyncStatus('ok');
+  }catch(e){setSyncStatus('erro');}
+}
+
+function setSyncStatus(s){
+  var el=document.getElementById('sync-status');
+  if(!el)return;
+  if(s==='ok'){el.textContent='✓ Sincronizado';el.className='sync-badge sync-ok';}
+  else if(s==='carregando'){el.textContent='Sincronizando...';el.className='sync-badge sync-carregando';}
+  else{el.textContent='Erro de conexão';el.className='sync-badge sync-erro';}
+}
 
 function renderSelectMedicos(){
-  const sel=document.getElementById('medico'),val=sel.value;
-  sel.innerHTML='<option value="">Selecione...</option>'+medicos.map(m=>`<option value="${m}">${m}</option>`).join('');
+  var sel=document.getElementById('medico'),val=sel.value;
+  sel.innerHTML='<option value="">Selecione...</option>'+medicos.map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');
   if(val)sel.value=val;
 }
 
 function renderListaMedicos(){
-  const el=document.getElementById('lista-medicos');
+  var el=document.getElementById('lista-medicos');
   if(!medicos.length){el.innerHTML='<p style="font-size:13px;color:#aaa;padding:8px 0">Nenhum médico cadastrado.</p>';return;}
-  el.innerHTML=medicos.map((m,i)=>`<div class="medico-item"><span>${m}</span><button class="btn-remover" onclick="removerMedico(${i})">Remover</button></div>`).join('');
+  el.innerHTML=medicos.map(function(m,i){return'<div class="medico-item"><span>'+m+'</span><button class="btn-remover" onclick="removerMedico('+i+')">Remover</button></div>';}).join('');
+  setSyncStatus('ok');
 }
 
-function adicionarMedico(){
-  const inp=document.getElementById('novo-medico'),nome=inp.value.trim();
+async function adicionarMedico(){
+  var inp=document.getElementById('novo-medico'),nome=inp.value.trim();
   if(!nome)return;
-  if(medicos.map(m=>m.toLowerCase()).includes(nome.toLowerCase())){showToast('Este médico já está na lista.','erro');return;}
-  medicos.push(nome);salvarMedicos();renderSelectMedicos();renderListaMedicos();
-  inp.value='';showToast(nome+' adicionado!','ok');
+  if(medicos.map(function(m){return m.toLowerCase();}).includes(nome.toLowerCase())){showToast('Este médico já está na lista.','erro');return;}
+  medicos.push(nome);inp.value='';
+  setSyncStatus('carregando');
+  renderSelectMedicos();renderListaMedicos();
+  await salvarMedicosServidor();
+  showToast(nome+' adicionado!','ok');
 }
 
-function removerMedico(i){
+async function removerMedico(i){
   if(!confirm('Remover '+medicos[i]+' da lista?'))return;
-  const nome=medicos[i];medicos.splice(i,1);salvarMedicos();renderSelectMedicos();renderListaMedicos();
+  var nome=medicos[i];medicos.splice(i,1);
+  setSyncStatus('carregando');
+  renderSelectMedicos();renderListaMedicos();
+  await salvarMedicosServidor();
   showToast(nome+' removido.','ok');
 }
 
-function tipoDia(d){if(FERIADOS.includes(d))return'feriado';const w=new Date(d+'T12:00:00').getDay();return(w===0||w===6)?'fds':'semana';}
+function tipoDia(d){if(FERIADOS.includes(d))return'feriado';var w=new Date(d+'T12:00:00').getDay();return(w===0||w===6)?'fds':'semana';}
 function tipoInfo(t){if(t==='semana')return{label:'Dia de semana',cls:'tipo-semana'};if(t==='fds')return{label:'Fim de semana',cls:'tipo-fds'};return{label:'Feriado',cls:'tipo-feriado'};}
 
 document.getElementById('data-plantao').addEventListener('change',function(){
-  const c=document.getElementById('tipo-dia-container'),b=document.getElementById('tipo-dia-badge');
+  var c=document.getElementById('tipo-dia-container'),b=document.getElementById('tipo-dia-badge');
   if(!this.value){c.style.display='none';return;}
-  const i=tipoInfo(tipoDia(this.value));b.textContent=i.label;b.className='tipo-badge '+i.cls;c.style.display='block';
+  var i=tipoInfo(tipoDia(this.value));b.textContent=i.label;b.className='tipo-badge '+i.cls;c.style.display='block';
 });
 
-function selectTurno(n){turnosSel=n;document.querySelectorAll('.turno-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));}
-function toggleProc(btn,tipo){const on=btn.classList.toggle('selected');procsAtivos[tipo]=on;document.getElementById('qtd-'+tipo).style.display=on?'block':'none';}
+function selectTurno(n){turnosSel=n;document.querySelectorAll('.turno-btn').forEach(function(b,i){b.classList.toggle('selected',i+1===n);});}
+function toggleProc(btn,tipo){var on=btn.classList.toggle('selected');procsAtivos[tipo]=on;document.getElementById('qtd-'+tipo).style.display=on?'block':'none';}
 
 async function registrar(){
-  const med=document.getElementById('medico').value,data=document.getElementById('data-plantao').value;
+  var med=document.getElementById('medico').value,data=document.getElementById('data-plantao').value;
   if(!med||!data||!turnosSel){alert('Preencha o médico, a data e o número de turnos.');return;}
-  const permcath=procsAtivos['permcath']?(parseInt(document.getElementById('n-permcath').value)||1):0;
-  const schilley=procsAtivos['schilley']?(parseInt(document.getElementById('n-schilley').value)||1):0;
-  const reg={id:Date.now(),medico:med,data,tipo:tipoDia(data),turnos:turnosSel,permcath,schilley};
-  const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='Enviando...';
+  var permcath=procsAtivos['permcath']?(parseInt(document.getElementById('n-permcath').value)||1):0;
+  var schilley=procsAtivos['schilley']?(parseInt(document.getElementById('n-schilley').value)||1):0;
+  var reg={id:Date.now(),medico:med,data:data,tipo:tipoDia(data),turnos:turnosSel,permcath:permcath,schilley:schilley};
+  var btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='Enviando...';
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(reg)});
     registros.push(reg);localStorage.setItem('plantoes',JSON.stringify(registros));
@@ -274,26 +309,26 @@ async function registrar(){
 function resetForm(){
   document.getElementById('medico').value='';document.getElementById('data-plantao').value='';
   turnosSel=0;procsAtivos={};
-  document.querySelectorAll('.turno-btn,.proc-btn').forEach(b=>b.classList.remove('selected'));
-  ['permcath','schilley'].forEach(t=>{document.getElementById('qtd-'+t).style.display='none';document.getElementById('n-'+t).value='';});
+  document.querySelectorAll('.turno-btn,.proc-btn').forEach(function(b){b.classList.remove('selected');});
+  ['permcath','schilley'].forEach(function(t){document.getElementById('qtd-'+t).style.display='none';document.getElementById('n-'+t).value='';});
   document.getElementById('tipo-dia-container').style.display='none';
 }
 
 function showToast(msg,tipo){
-  const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;
-  t.className='toast '+(tipo==='ok'?'ok':'erro')+' show';setTimeout(()=>t.classList.remove('show'),4000);
+  var t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;
+  t.className='toast '+(tipo==='ok'?'ok':'erro')+' show';setTimeout(function(){t.classList.remove('show');},4000);
 }
 
 function showTab(id,e){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('tab-'+id).classList.add('active');e.target.classList.add('active');
   if(id==='admin'&&admAutenticado){renderMesSelect();renderResumo();}
   if(id==='config'&&admAutenticado){renderListaMedicos();renderFeriados();}
 }
 
 function checkSenha(area){
-  const inp=document.getElementById('senha-'+area),erro=document.getElementById('erro-'+area);
+  var inp=document.getElementById('senha-'+area),erro=document.getElementById('erro-'+area);
   if(inp.value===SENHA){
     admAutenticado=true;
     document.getElementById('lock-'+area).style.display='none';
@@ -303,46 +338,46 @@ function checkSenha(area){
     erro.textContent='';inp.value='';
   }else{
     erro.textContent='Senha incorreta. Tente novamente.';
-    inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),300);inp.value='';
+    inp.classList.add('shake');setTimeout(function(){inp.classList.remove('shake');},300);inp.value='';
   }
 }
 
 function sair(){
   admAutenticado=false;
-  ['admin','config'].forEach(a=>{document.getElementById('lock-'+a).style.display='block';document.getElementById('conteudo-'+a).style.display='none';});
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  ['admin','config'].forEach(function(a){document.getElementById('lock-'+a).style.display='block';document.getElementById('conteudo-'+a).style.display='none';});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('tab-registro').classList.add('active');document.querySelector('.tab').classList.add('active');
 }
 
 function fmt(n){return'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2});}
-function getMeses(){const s=new Set(registros.map(r=>r.data.slice(0,7)));s.add(new Date().toISOString().slice(0,7));return Array.from(s).sort().reverse();}
+function getMeses(){var s=new Set(registros.map(function(r){return r.data.slice(0,7);}));s.add(new Date().toISOString().slice(0,7));return Array.from(s).sort().reverse();}
 
 function renderMesSelect(){
-  document.getElementById('mes-select').innerHTML=getMeses().map(m=>{
-    const[y,mo]=m.split('-'),n=new Date(y,mo-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-    return`<option value="${m}">${n.charAt(0).toUpperCase()+n.slice(1)}</option>`;
+  document.getElementById('mes-select').innerHTML=getMeses().map(function(m){
+    var p=m.split('-'),n=new Date(p[0],p[1]-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
+    return'<option value="'+m+'">'+n.charAt(0).toUpperCase()+n.slice(1)+'</option>';
   }).join('');
 }
 
 function renderResumo(){
-  const mes=document.getElementById('mes-select').value,regs=registros.filter(r=>r.data.startsWith(mes));
-  const todosMedicos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO)),dados={};
-  todosMedicos.forEach(m=>dados[m]={semana:0,fds:0,permcath:0,schilley:0});
-  regs.forEach(r=>{if(!dados[r.medico])dados[r.medico]={semana:0,fds:0,permcath:0,schilley:0};if(r.tipo==='semana')dados[r.medico].semana+=r.turnos;else dados[r.medico].fds+=r.turnos;dados[r.medico].permcath+=r.permcath||0;dados[r.medico].schilley+=r.schilley||0;});
-  const ativos=Object.keys(dados).filter(m=>dados[m].semana>0||dados[m].fds>0||dados[m].permcath>0||dados[m].schilley>0);
+  var mes=document.getElementById('mes-select').value,regs=registros.filter(function(r){return r.data.startsWith(mes);});
+  var todos=JSON.parse(localStorage.getItem('medicos')||JSON.stringify(MEDICOS_PADRAO)),dados={};
+  todos.forEach(function(m){dados[m]={semana:0,fds:0,permcath:0,schilley:0};});
+  regs.forEach(function(r){if(!dados[r.medico])dados[r.medico]={semana:0,fds:0,permcath:0,schilley:0};if(r.tipo==='semana')dados[r.medico].semana+=r.turnos;else dados[r.medico].fds+=r.turnos;dados[r.medico].permcath+=r.permcath||0;dados[r.medico].schilley+=r.schilley||0;});
+  var ativos=Object.keys(dados).filter(function(m){return dados[m].semana>0||dados[m].fds>0||dados[m].permcath>0||dados[m].schilley>0;});
   if(!ativos.length){document.getElementById('resumo-content').innerHTML='<div class="empty-state">Nenhum registro neste mês.</div>';document.getElementById('log-content').innerHTML='<div class="empty-state">Sem registros.</div>';return;}
-  let totalGeral=0;
-  const rows=ativos.map(m=>{const d=dados[m],total=d.semana*575+d.fds*600+d.permcath*350+d.schilley*100;totalGeral+=total;return`<tr><td>${m}</td><td style="text-align:center">${d.semana}</td><td style="text-align:center">${d.fds}</td><td style="text-align:center">${d.permcath}</td><td style="text-align:center">${d.schilley}</td><td class="valor" style="text-align:right">${fmt(total)}</td></tr>`;}).join('');
-  document.getElementById('resumo-content').innerHTML=`<div style="overflow-x:auto"><table class="resumo-table"><thead><tr><th>Médico</th><th style="text-align:center">Turnos<br>semana</th><th style="text-align:center">Turnos<br>FDS/Fer.</th><th style="text-align:center">Permcath</th><th style="text-align:center">Schilley</th><th style="text-align:right">Total</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="border-top:1px solid #eee"><td colspan="5" style="padding-top:10px;color:#888;font-size:12px">Total geral</td><td class="valor" style="text-align:right;padding-top:10px">${fmt(totalGeral)}</td></tr></tfoot></table></div>`;
-  document.getElementById('log-content').innerHTML=regs.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(r=>{const i=tipoInfo(r.tipo),p=[];if(r.permcath)p.push(r.permcath+'× Permcath');if(r.schilley)p.push(r.schilley+'× Schilley');return`<div class="log-item"><strong>${r.medico}</strong> — ${r.turnos} turno${r.turnos>1?'s':''} <span style="font-size:11px;padding:2px 7px;border-radius:4px" class="${i.cls}">${i.label}</span>${p.length?' <span style="color:#aaa;font-size:12px">'+p.join(', ')+'</span>':''}<div class="log-meta">${new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR')}</div></div>`;}).join('');
+  var totalGeral=0;
+  var rows=ativos.map(function(m){var d=dados[m],total=d.semana*575+d.fds*600+d.permcath*350+d.schilley*100;totalGeral+=total;return'<tr><td>'+m+'</td><td style="text-align:center">'+d.semana+'</td><td style="text-align:center">'+d.fds+'</td><td style="text-align:center">'+d.permcath+'</td><td style="text-align:center">'+d.schilley+'</td><td class="valor" style="text-align:right">'+fmt(total)+'</td></tr>';}).join('');
+  document.getElementById('resumo-content').innerHTML='<div style="overflow-x:auto"><table class="resumo-table"><thead><tr><th>Médico</th><th style="text-align:center">Turnos<br>semana</th><th style="text-align:center">Turnos<br>FDS/Fer.</th><th style="text-align:center">Permcath</th><th style="text-align:center">Schilley</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr style="border-top:1px solid #eee"><td colspan="5" style="padding-top:10px;color:#888;font-size:12px">Total geral</td><td class="valor" style="text-align:right;padding-top:10px">'+fmt(totalGeral)+'</td></tr></tfoot></table></div>';
+  document.getElementById('log-content').innerHTML=regs.slice().sort(function(a,b){return b.data.localeCompare(a.data);}).map(function(r){var i=tipoInfo(r.tipo),p=[];if(r.permcath)p.push(r.permcath+'× Permcath');if(r.schilley)p.push(r.schilley+'× Schilley');return'<div class="log-item"><strong>'+r.medico+'</strong> — '+r.turnos+' turno'+(r.turnos>1?'s':'')+' <span style="font-size:11px;padding:2px 7px;border-radius:4px" class="'+i.cls+'">'+i.label+'</span>'+(p.length?' <span style="color:#aaa;font-size:12px">'+p.join(', ')+'</span>':'')+'<div class="log-meta">'+new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div>';}).join('');
 }
 
-function renderFeriados(){document.getElementById('lista-feriados').innerHTML=Object.entries(FERIADOS_NOMES).map(([d,n])=>`<div>${new Date(d+'T12:00:00').toLocaleDateString('pt-BR')} — ${n}</div>`).join('');}
+function renderFeriados(){document.getElementById('lista-feriados').innerHTML=Object.keys(FERIADOS_NOMES).map(function(d){return'<div>'+new Date(d+'T12:00:00').toLocaleDateString('pt-BR')+' — '+FERIADOS_NOMES[d]+'</div>';}).join('');}
 
 document.getElementById('data-plantao').value=new Date().toISOString().slice(0,10);
 document.getElementById('data-plantao').dispatchEvent(new Event('change'));
-renderSelectMedicos();
+carregarMedicos();
 </script>
 </body>
 </html>
